@@ -1,0 +1,45 @@
+{
+    "Comment": "A state machine that does mock stock trading.",
+    "StartAt": "Sagemaker CreateTrainingJob",
+
+    "States": {
+        "Sagemaker CreateTrainingJob": {
+            "Type": "Task",
+            "Resource": "arn:aws:states:::sagemaker:createTrainingJob.sync",
+            "Parameters": {
+                "AlgorithmSpecification": {
+                    "TrainingImage.$": "$.trainingImage",
+                    "TrainingInputMode": "File"
+                },
+                "OutputDataConfig": {
+                    "S3OutputPath": "s3://sagemaker-eu-central-1-384850799342/Storage/Model/Output/"
+                },
+                "StoppingCondition": {
+                    "MaxRuntimeInSeconds": 86400
+                },
+                "ResourceConfig": {
+                    "InstanceCount": 1,
+                    "InstanceType.$": "$.instanceType",
+                    "VolumeSizeInGB": 30
+                },
+                "InputDataConfig": [
+                    {
+                    "DataSource": {
+                        "S3DataSource": {
+                            "S3DataDistributionType": "ShardedByS3Key",
+                            "S3DataType": "S3Prefix",
+                            "S3Uri": "s3://sagemaker-eu-central-1-384850799342/Storage/Model/record-io-data"
+                        }
+                    },
+                    "ChannelName": "train",
+                    "ContentType": "application/x-recordio-protobuf"                
+                    }
+                ],
+                "HyperParameters.$": "$.hyperparameters",
+                "RoleArn.$": "$$.Execution.RoleArn",
+                "TrainingJobName.$": "$$.Execution.Name"
+            },
+            "End": true
+        }
+    }
+}

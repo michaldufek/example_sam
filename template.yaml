@@ -1,0 +1,113 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  multiStep
+
+  Sample SAM Template for multiStep
+
+Resources:
+  MLStateMachine:
+      Type: AWS::Serverless::StateMachine # More info about State Machine Resource: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-resource-statemachine.html
+      Properties:
+        DefinitionUri: statemachine/ml.asl.json
+        DefinitionSubstitutions:
+          MLStateMachineRoleArn: !GetAtt MLStateMachineRole.Arn
+        Role: !GetAtt MLStateMachineRole.Arn
+        Events:
+          HourlyTradingSchedule:
+            Type: Schedule # More info about Schedule Event Source: https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-property-statemachine-schedule.html
+            Properties:
+              Description: Schedule to run the stock trading state machine every hour
+              Enabled: False # This schedule is disabled by default to avoid incurring charges.
+              Schedule: "rate(1 day)"
+          ApiEvent:
+            Type: Api
+            Properties:
+              Path: /train
+              Method: post
+              RestApiId: !Ref MLStateMachineApi #If you don't define this property, AWS SAM creates a default AWS::Serverless::Api 
+  
+  MLStateMachineApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: mlstatemachineapi
+      StageName: dev
+      Cors: "'*'"
+      Auth:
+        #DefaultAuthorizer: AWS_IAM
+        DefaultAuthorizer: CognitoAuth
+        Authorizers:
+          CognitoAuth:
+            UserPoolArn: "arn:aws:cognito-idp:eu-central-1:384850799342:userpool/eu-central-1_2DOvQqmqH"
+
+
+  MLStateMachineRole:
+      Type: AWS::IAM::Role
+      Properties:
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - states.amazonaws.com
+                  - sagemaker.amazonaws.com
+              Action:
+                  - 'sts:AssumeRole'
+        Description: String
+        ManagedPolicyArns:
+          - !Ref MLStateMachinePolicy
+        Path: /
+  
+  MLStateMachinePolicy:
+      Type: 'AWS::IAM::ManagedPolicy'
+      #DependsOn: SageMakerRole
+      Properties:
+        Description: Step function use policy
+        PolicyDocument: 
+              {
+                      "Version": "2012-10-17",
+                      "Statement": [                       
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "sagemaker:CreateTrainingJob",
+                              "sagemaker:DescribeTrainingJob",
+                              "sagemaker:StopTrainingJob",
+                              "sagemaker:CreateModel",
+                              "sagemaker:CreateTransformJob",
+                              "sagemaker:CreateEndpointConfig",
+                              "sagemaker:CreateEndpoint",
+                              "sagemaker:AddTags",
+                              "iam:PassRole",
+                              "s3:*"
+                            ],
+                            "Resource": [
+                                "*"
+                            ]
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "sagemaker:ListTags"
+                            ],
+                            "Resource": [
+                              "*"
+                            ]
+                          },
+                          {
+                            "Effect": "Allow",
+                            "Action": [
+                              "events:PutTargets",
+                              "events:PutRule",
+                              "events:DescribeRule"
+                            ],
+                            "Resource": [
+                              "*"
+                            ]
+                          }  
+                      ]
+                }
+            
+
+

@@ -1,0 +1,50 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: AWS SAM CLI Nested Stack for Auto Dependency Layer Creation
+Metadata:
+  SamCliInfo: 1.40.1
+  key: AWS SAM CLI sync command
+Outputs:
+  StockBuyerFunctionda8aa733DepLayer:
+    Value:
+      Ref: StockBuyerFunctionda8aa733DepLayer
+  StockCheckerFunctionc185be2fDepLayer:
+    Value:
+      Ref: StockCheckerFunctionc185be2fDepLayer
+  StockSellerFunction4b4c155eDepLayer:
+    Value:
+      Ref: StockSellerFunction4b4c155eDepLayer
+Resources:
+  StockBuyerFunctionda8aa733DepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.9
+      ContentUri: /home/dufek/Documents/sagemaker/multiStep/.aws-sam/auto-dependency-layer/StockBuyerFunctionda8aa733DepLayer
+      Description: Auto created layer for dependencies of function StockBuyerFunction
+      LayerName: mlstatemachine478adaf9-StockBuyerFunctionda8aa733-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+  StockCheckerFunctionc185be2fDepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.9
+      ContentUri: /home/dufek/Documents/sagemaker/multiStep/.aws-sam/auto-dependency-layer/StockCheckerFunctionc185be2fDepLayer
+      Description: Auto created layer for dependencies of function StockCheckerFunction
+      LayerName: mlstatemachine478adaf9-StockCheckerFunctionc185be2f-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+  StockSellerFunction4b4c155eDepLayer:
+    Metadata:
+      CreatedBy: AWS SAM CLI sync command
+    Properties:
+      CompatibleRuntimes:
+      - python3.9
+      ContentUri: /home/dufek/Documents/sagemaker/multiStep/.aws-sam/auto-dependency-layer/StockSellerFunction4b4c155eDepLayer
+      Description: Auto created layer for dependencies of function StockSellerFunction
+      LayerName: mlstatemachine478adaf9-StockSellerFunction4b4c155e-DepLayer
+      RetentionPolicy: Delete
+    Type: AWS::Serverless::LayerVersion
+Transform: AWS::Serverless-2016-10-31
